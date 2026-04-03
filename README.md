@@ -1,73 +1,155 @@
-# React + TypeScript + Vite
+# Smart Pathshala – A Gamified STEM Learning PWA for Rural Students
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Smart Pathshala is a **Progressive Web App (PWA)** designed to bring interactive, gamified STEM learning (Science, Technology, Engineering, and Mathematics) to **rural students in grades 6–12** in India. The app is built to be **lightweight, low‑bandwidth‑friendly**, and accessible on **low‑cost Android devices**, with support for **English, Hindi, and regional languages**, as well as **voice‑based interaction**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎯 Project Overview
 
-## React Compiler
+Smart Pathshala helps students:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Learn core STEM concepts through **level‑based topics** (e.g., Fractions, Decimals, Algebra)  
+- Practice with **interactive tasks** (MCQs, puzzles, story‑based problems)  
+- Earn **points, stars, and badges** to stay motivated  
 
-## Expanding the ESLint configuration
+Teachers can:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Create classes and generate **unique class codes**  
+- Track student progress via a **simple dashboard**  
+- Provide **feedback** and assign tasks  
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+The app follows a **mobile‑first, accessible UI**, with large touch targets, clear navigation, and minimal visual clutter, making it suitable for users with limited digital literacy.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📱 Key Features
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **Onboarding & Profiles**
+  - Role selection: **Student** and **Teacher**
+  - Simple student info, school selection, and class selection
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Gamified Learning Path**
+  - **Vertical level map** (Levels 1–12) with unlocked/completed states
+  - Each level corresponds to a STEM topic (e.g., Fractions, Decimals, Algebra)
+  - Visual progress tracking and milestone rewards
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Interactive Learning Tasks**
+  - Short topic explanations with an animated avatar
+  - Three task types per topic:
+    - Multiple‑choice questions (MCQs)
+    - Interactive puzzles (drag‑and‑match, grids, etc.)
+    - Story‑based word problems
+
+- **Gamification System**
+  - Points, stars, and badges for completing tasks and levels
+  - Encourages repeated practice and concept mastery
+
+- **AI‑Assisted Doubt Solving**
+  - Chat‑style interface with **text and voice input**
+  - Simple, clear responses in the user’s language
+
+- **Teacher Management**
+  - Create and manage classes with unique class codes
+  - Track student progress via a **dashboard** with completion % and performance insights
+  - Provide **feedback**, assign tasks, and send notifications
+
+- **Accessibility & Low‑Cost Support**
+  - Optimized for low‑bandwidth and low‑PPI devices
+  - Simple layout, clear icons, and large buttons
+  - Multilingual content (English, Hindi, regional languages) with voice support
+
+---
+
+## 🧩 Tech Stack
+
+**Frontend**: React + Vite + Tailwind CSS  
+**PWA Features**: Service Workers (offline caching), Local Storage  
+**Backend**: Firebase (Firestore, Authentication, Cloud Functions)
+
+---
+
+## 🚀 Getting Started (Local Dev)
+
+1. **Clone the repo**
+
+   ```bash
+   git clone https://github.com/your-username/smart-pathshala.git
+   cd smart-pathshala
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Set up Firebase**
+
+   - Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
+   - Enable **Firestore**, **Authentication**, and **Cloud Functions**
+   - Copy your Firebase config to `.env.local`
+
+4. **Environment variables**
+
+   Create `.env.local`:
+
+   ```env
+   VITE_FIREBASE_API_KEY=your_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+   VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+   VITE_FIREBASE_APP_ID=your_app_id
+   ```
+
+5. **Start the development server**
+
+   ```bash
+   npm run dev
+   ```
+
+6. **Build for production**
+
+   ```bash
+   npm run build
+   ```
+
+7. **Deploy as a PWA**
+
+   ```bash
+   # Deploy to Firebase Hosting
+   npm run deploy
+   ```
+
+---
+
+## 📊 Data Model (High‑Level)
+
+- `User` – shared base model for students and teachers  
+- `Student` – extends `User` with school, class, language, and voice preferences  
+- `Teacher` – extends `User` with school, subject, and class details  
+- `Class` – teacher‑managed class with a unique code and grade/subject  
+- `Level` – 1–12, each with a topic (e.g., Fractions, Decimals, Algebra)  
+- `Task` – MCQs, puzzles, word problems grouped under a level  
+- `StudentLevelProgress` – tracks unlocked/completed levels, stars, and points  
+- `StudentTaskAttempt` – records scores and attempts for each task  
+- `Feedback` – teacher‑to‑student feedback with assigned tasks  
+- `Notification` – notification previews and status
+
+---
+
+## 🎨 Design Principles
+
+- **Mobile‑first layout** with large touch targets  
+- **Clean, minimal UI** – no unnecessary clutter or childish illustrations  
+- **Consistent design system** – rounded cards, soft shadows, clear typography  
+- **Gamification with purpose** – points, stars, and badges used to reinforce learning, not distract  
+- **Offline‑friendly UX** – cached levels, tasks, and progress indicators  
+- **Multilingual + voice** – supports text and voice input for low‑literacy users  
+
+---
+
+
+
+
+🚀 **Let's make STEM learning accessible and engaging for every rural student with Smart Pathshala.**
