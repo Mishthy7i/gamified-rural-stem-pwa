@@ -18,6 +18,7 @@ interface UserData {
   classLevel?: string;
   joinedClassCode?: string;
   subjectCode?: string;
+  points?: number;
   hasCompletedOnboarding?: boolean;
 }
 
@@ -25,7 +26,7 @@ interface AuthContextType {
   user: User | null;
   userData: UserData | null;
   loading: boolean;
-  signInWithGoogle: (role: UserRole) => Promise<{ isNewUser: boolean }>;
+  signInWithGoogle: (role: UserRole) => Promise<{ isNewUser: boolean, role: UserRole }>;
   signOut: () => Promise<void>;
   updateUserData: (data: Partial<UserData>) => Promise<void>;
 }
@@ -74,10 +75,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
       await setDoc(docRef, newUserData);
       setUserData(newUserData);
-      return { isNewUser: true };
+      return { isNewUser: true, role: selectedRole };
     } else {
-      setUserData(docSnap.data() as UserData);
-      return { isNewUser: false };
+      const existingData = docSnap.data() as UserData;
+      setUserData(existingData);
+      return { isNewUser: false, role: existingData.role };
     }
   };
 

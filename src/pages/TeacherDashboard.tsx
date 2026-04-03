@@ -3,11 +3,13 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../services/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import { Copy, Users, LogOut, CheckCircle2 } from 'lucide-react';
 
 const TeacherDashboard: React.FC = () => {
   const { userData, user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [myClasses, setMyClasses] = useState<any[]>([]);
   const [studentsByCode, setStudentsByCode] = useState<Record<string, any[]>>({});
@@ -48,7 +50,7 @@ const TeacherDashboard: React.FC = () => {
     <div className="min-h-screen" style={{ padding: '2rem', background: 'var(--bg-primary)' }}>
       <header className="flex-between mb-6">
         <div>
-          <h2>Teacher Dashboard 👨‍🏫</h2>
+          <h2>{t('teacher.dashboard')}</h2>
           <p className="text-secondary">{userData?.name} • {userData?.school}</p>
         </div>
         <button className="btn-secondary" onClick={signOut}><LogOut size={20} /></button>
@@ -58,9 +60,9 @@ const TeacherDashboard: React.FC = () => {
         
         {myClasses.length === 0 ? (
           <div className="card-gamified text-center">
-            <h3>No Classes Found</h3>
-            <p className="text-secondary mb-4">You have not generated any active classrooms yet.</p>
-            <button className="btn-primary" onClick={() => navigate('/onboarding/teacher')}>Generate a Code</button>
+            <h3>{t('teacher.noClasses')}</h3>
+            <p className="text-secondary mb-4">{t('teacher.noClassesDesc')}</p>
+            <button className="btn-primary" onClick={() => navigate('/onboarding/teacher')}>{t('teacher.generateCode')}</button>
           </div>
         ) : (
           myClasses.map((cls, idx) => (
@@ -68,7 +70,7 @@ const TeacherDashboard: React.FC = () => {
               <div className="flex-between mb-4 border-b pb-4" style={{ borderBottom: '1px solid rgba(148,163,184,0.2)' }}>
                 <div>
                   <h3 style={{ color: 'var(--accent-primary)' }}>{cls.subject} ({cls.teachingClass})</h3>
-                  <p className="text-secondary text-sm">Classroom Code</p>
+                  <p className="text-secondary text-sm">{t('teacher.classroomCode')}</p>
                 </div>
                 
                 {/* Code UI */}
@@ -84,21 +86,21 @@ const TeacherDashboard: React.FC = () => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
                   <Users size={18} className="text-secondary" />
-                  <h4 className="text-secondary">Enrolled Students</h4>
+                  <h4 className="text-secondary">{t('teacher.enrolled')}</h4>
                 </div>
 
                 {!studentsByCode[cls.code] || studentsByCode[cls.code].length === 0 ? (
-                  <p className="text-sm text-secondary italic">No students have joined using this code yet.</p>
+                  <p className="text-sm text-secondary italic">{t('teacher.noStudents')}</p>
                 ) : (
                   <div style={{ display: 'grid', gap: '1rem' }}>
                     {studentsByCode[cls.code].map(student => (
                       <div key={student.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'var(--bg-primary)', borderRadius: 'var(--border-radius-sm)', borderLeft: '4px solid var(--accent-primary)' }}>
                         <div>
                           <strong>{student.name}</strong>
-                          <span className="text-sm text-secondary ml-2">Class Level: {student.classLevel || 'Unknown'}</span>
+                          <span className="text-sm text-secondary ml-2">{t('dashboard.class')}: {student.classLevel || t('teacher.unknown')}</span>
                         </div>
                         <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--accent-secondary)' }}>
-                          Level 1
+                          {t('teacher.level1')}
                         </div>
                       </div>
                     ))}

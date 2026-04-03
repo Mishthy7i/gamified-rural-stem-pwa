@@ -42,7 +42,8 @@ const TeacherOnboarding: React.FC = () => {
       subject: subject,
       teachingClass: teachingClass,
       code: codeStr,
-      students: []
+      students: [],
+      created: Date.now()
     });
   };
 

@@ -22,16 +22,21 @@ const Auth: React.FC = () => {
   const handleGoogleAuth = async () => {
     try {
       setErrorMsg('');
-      const { isNewUser } = await signInWithGoogle(selectedRole);
+      const { isNewUser, role } = await signInWithGoogle(selectedRole);
       
       if (isNewUser) {
         // Go to onboarding
-        if (selectedRole === 'student') navigate('/onboarding/student');
+        if (role === 'student') navigate('/onboarding/student');
         else navigate('/onboarding/teacher');
       } else {
-        // Existing user goes straight to dashboard
-        if (selectedRole === 'student') navigate('/dashboard/student');
-        else navigate('/dashboard/teacher');
+        // Existing user MUST go to their actual registered dashboard, regardless of what they clicked!
+        if (role === 'student') {
+          if (selectedRole !== 'student') alert("You are already registered as a Student! Sending you to the Student Dashboard.");
+          navigate('/dashboard/student');
+        } else {
+          if (selectedRole !== 'teacher') alert("You are already registered as a Teacher! Sending you to the Teacher Dashboard.");
+          navigate('/dashboard/teacher');
+        }
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Authentication failed');

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import PWABadge from './PWABadge';
@@ -8,6 +8,10 @@ import StudentOnboarding from './pages/StudentOnboarding';
 import TeacherOnboarding from './pages/TeacherOnboarding';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
+import LearningMap from './pages/LearningMap';
+import FractionsMap from './pages/missions/FractionsMap';
+import FractionsMissionOne from './pages/missions/FractionsMissionOne';
+import FractionsMissionTwo from './pages/missions/FractionsMissionTwo';
 import './App.css';
 
 function App() {
@@ -22,11 +26,21 @@ function App() {
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/onboarding/student" element={<StudentOnboarding />} />
                 <Route path="/onboarding/teacher" element={<TeacherOnboarding />} />
+                
+                {/* Protected App Routes */}
                 <Route path="/dashboard/student" element={<StudentDashboard />} />
                 <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
-                {/* 
-                <Route path="/learning" element={<LearningMap />} />
-                */}
+                
+                {/* Core Game Map Paths */}
+                <Route path="/map" element={<LearningMap />} />
+                
+                {/* Mission Level 1 Sub-Paths */}
+                <Route path="/level/fractions" element={<FractionsMap />} />
+                <Route path="/mission/fractions/1" element={<FractionsMissionOne />} />
+                <Route path="/mission/fractions/2" element={<FractionsMissionTwo />} />
+
+                {/* 404 Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
             <PWABadge />
