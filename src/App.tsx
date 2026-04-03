@@ -1,21 +1,40 @@
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
+import PWABadge from './PWABadge';
+import Landing from './pages/Landing';
+import Auth from './pages/Auth';
+import StudentOnboarding from './pages/StudentOnboarding';
+import TeacherOnboarding from './pages/TeacherOnboarding';
+import StudentDashboard from './pages/StudentDashboard';
+import TeacherDashboard from './pages/TeacherDashboard';
+import './App.css';
 
 function App() {
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>🚀 STEM Rural Learning App</h1>
-
-      <div style={{ marginTop: "30px" }}>
-        <button style={{ margin: "10px", padding: "10px 20px" }}>
-          I am a Student 🎓
-        </button>
-
-        <button style={{ margin: "10px", padding: "10px 20px" }}>
-          I am a Teacher 👩‍🏫
-        </button>
-      </div>
-    </div>
-  )
+    <LanguageProvider>
+      <AuthProvider>
+        <Router>
+          <div className="app-container">
+            <main className="main-content">
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/onboarding/student" element={<StudentOnboarding />} />
+                <Route path="/onboarding/teacher" element={<TeacherOnboarding />} />
+                <Route path="/dashboard/student" element={<StudentDashboard />} />
+                <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
+                {/* 
+                <Route path="/learning" element={<LearningMap />} />
+                */}
+              </Routes>
+            </main>
+            <PWABadge />
+          </div>
+        </Router>
+      </AuthProvider>
+    </LanguageProvider>
+  );
 }
 
-export default App
+export default App;
