@@ -1,0 +1,18 @@
+.offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: #fef3c7;
+  background: rgba(180, 83, 9, 0.35);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  border-radius: var(--border-radius-sm, 8px);
+}
+
+.offline-banner svg {
+  flex-shrink: 0;
+  opacity: 0.95;
+}

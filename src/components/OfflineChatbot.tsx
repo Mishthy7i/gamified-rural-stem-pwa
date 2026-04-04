@@ -1,40 +1,53 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, VolumeX, Mic } from 'lucide-react';
-import { useWebLLM } from '../hooks/useWebLLM';
-import { useVoice } from '../hooks/useVoice';
-import { useLanguage } from '../context/LanguageContext';
-import './OfflineChatbot.css';
-import type { ChatCompletionMessageParam } from '@mlc-ai/web-llm';
+import { useState, useRef, useEffect } from "react";
+import { MessageCircle, X, Send, Bot, VolumeX, Mic } from "lucide-react";
+import { useWebLLM } from "../context/WebLLMContext";
+import { useVoice } from "../hooks/useVoice";
+import { useLanguage } from "../context/LanguageContext";
+import "./OfflineChatbot.css";
+import type { ChatCompletionMessageParam } from "@mlc-ai/web-llm";
 
 export const OfflineChatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { engine, isReady, progressText, initEngine, resetEngine } = useWebLLM();
+  const { engine, isReady, initFailed, progressText, initEngine, resetEngine } =
+    useWebLLM();
   const { speak, stop } = useVoice();
   const { language } = useLanguage();
-  const [inputVal, setInputVal] = useState('');
+  const [inputVal, setInputVal] = useState("");
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
-  
+
   // Dragging state
-  const dragRef = useRef<{ startX: number, startY: number, initialX: number, initialY: number } | null>(null);
-  const [position, setPosition] = useState({ x: window.innerWidth - 380, y: window.innerHeight - 560 });
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    initialX: number;
+    initialY: number;
+  } | null>(null);
+  const [position, setPosition] = useState({
+    x: window.innerWidth - 380,
+    y: window.innerHeight - 560,
+  });
   const [isDragging, setIsDragging] = useState(false);
 
   // Force English prompt: SmolLM2-135M is too small to output grammatically correct Hindi
   const baseSystemPrompt = `You are a warm, extremely encouraging AI teacher talking to a 7-year-old child. Explain EVERYTHING in very simple English words with fun, real-life examples (like animals, toys, food). Do NOT use complex words. Keep answers 1 or 2 sentences max. You MUST reply ONLY in English.`;
 
   const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([
-    { role: 'system', content: baseSystemPrompt },
-    { role: 'assistant', content: "Hi there! I am your AI tutor. I love using fun examples! What do you want to learn about today?" }
+    { role: "system", content: baseSystemPrompt },
+    {
+      role: "assistant",
+      content:
+        "Hi there! I am your AI tutor. I love using fun examples! What do you want to learn about today?",
+    },
   ]);
   const [isGenerating, setIsGenerating] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto update system prompt if language flips during chat
   useEffect(() => {
-    setMessages(prev => {
+    setMessages((prev) => {
       const updated = [...prev];
-      if (updated[0]?.role === 'system') {
+      if (updated[0]?.role === "system") {
         updated[0].content = baseSystemPrompt;
       }
       return updated;
@@ -43,20 +56,22 @@ export const OfflineChatbot: React.FC = () => {
 
   // Setup Voice Input Recognition
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      
+
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
-        setInputVal(prev => (prev + " " + transcript).trim());
+        setInputVal((prev) => (prev + " " + transcript).trim());
       };
-      
+
       recognition.onend = () => setIsListening(false);
       recognition.onerror = () => setIsListening(false);
-      
+
       recognitionRef.current = recognition;
     }
   }, []);
@@ -78,7 +93,7 @@ export const OfflineChatbot: React.FC = () => {
   // Auto scroll
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
@@ -90,7 +105,7 @@ export const OfflineChatbot: React.FC = () => {
       const dy = e.clientY - dragRef.current.startY;
       setPosition({
         x: dragRef.current.initialX + dx,
-        y: dragRef.current.initialY + dy
+        y: dragRef.current.initialY + dy,
       });
     };
 
@@ -99,15 +114,15 @@ export const OfflineChatbot: React.FC = () => {
     };
 
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
     } else {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
     }
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging]);
 
@@ -117,17 +132,20 @@ export const OfflineChatbot: React.FC = () => {
       startX: e.clientX,
       startY: e.clientY,
       initialX: position.x,
-      initialY: position.y
+      initialY: position.y,
     };
   };
 
   const handleSend = async () => {
     if (!inputVal.trim() || !engine || isGenerating) return;
 
-    const userMessage: ChatCompletionMessageParam = { role: 'user', content: inputVal };
+    const userMessage: ChatCompletionMessageParam = {
+      role: "user",
+      content: inputVal,
+    };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
-    setInputVal('');
+    setInputVal("");
     setIsGenerating(true);
     stop(); // cancel any ongoing speech
 
@@ -136,15 +154,12 @@ export const OfflineChatbot: React.FC = () => {
     const systemPrompt = newMessages[0];
     // Take the last 3 actual dialogue lines (ignoring system prompt)
     const dialogueHistory = newMessages.slice(1).slice(-3);
-    
-    const optimizedContext = [
-      systemPrompt, 
-      ...dialogueHistory
-    ];
+
+    const optimizedContext = [systemPrompt, ...dialogueHistory];
 
     try {
       // Add empty assistant message that will be streamed into
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
       const chunks = await engine.chat.completions.create({
         messages: optimizedContext,
@@ -155,18 +170,21 @@ export const OfflineChatbot: React.FC = () => {
         max_tokens: 150, // strict length cap
       });
 
-      let fullResponse = '';
-      let textBufferForVoice = '';
+      let fullResponse = "";
+      let textBufferForVoice = "";
 
       for await (const chunk of chunks) {
-        const delta = chunk.choices[0]?.delta.content || '';
+        const delta = chunk.choices[0]?.delta.content || "";
         fullResponse += delta;
         textBufferForVoice += delta;
 
         // Update the last message in real-time on UI
-        setMessages(prev => {
+        setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: 'assistant', content: fullResponse };
+          updated[updated.length - 1] = {
+            role: "assistant",
+            content: fullResponse,
+          };
           return updated;
         });
 
@@ -177,7 +195,7 @@ export const OfflineChatbot: React.FC = () => {
           if (textBufferForVoice.trim().length > 0) {
             // Give the browser TTS engine a complete sentence to read perfectly
             speak(textBufferForVoice.trim() + delta.trim());
-            textBufferForVoice = ''; // flush buffer
+            textBufferForVoice = ""; // flush buffer
           }
         }
       }
@@ -186,15 +204,18 @@ export const OfflineChatbot: React.FC = () => {
       if (textBufferForVoice.trim().length > 0) {
         speak(textBufferForVoice.trim());
       }
-
     } catch (e: any) {
       console.error("Chatbot generation error", e);
-      const isCrash = e?.message?.includes('Instance reference') || String(e).includes('Device lost');
-      setMessages(prev => {
+      const isCrash =
+        e?.message?.includes("Instance reference") ||
+        String(e).includes("Device lost");
+      setMessages((prev) => {
         const updated = [...prev];
-        updated[updated.length - 1] = { 
-          role: 'assistant', 
-          content: isCrash ? "GPU Device was lost due to unmounting or memory limits. Please reset the AI engine." : "Sorry, I ran into an error generating that response." 
+        updated[updated.length - 1] = {
+          role: "assistant",
+          content: isCrash
+            ? "GPU Device was lost due to unmounting or memory limits. Please reset the AI engine."
+            : "Sorry, I ran into an error generating that response.",
         };
         return updated;
       });
@@ -208,7 +229,7 @@ export const OfflineChatbot: React.FC = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -217,28 +238,63 @@ export const OfflineChatbot: React.FC = () => {
   return (
     <div className="chatbot-container">
       {isOpen ? (
-        <div 
+        <div
           className="chatbot-window animate-slide-up"
-          style={{ left: `${position.x}px`, top: `${position.y}px`, bottom: 'auto', right: 'auto' }}
+          style={{
+            left: `${position.x}px`,
+            top: `${position.y}px`,
+            bottom: "auto",
+            right: "auto",
+          }}
         >
-          <div 
-            className="chatbot-header" 
+          <div
+            className="chatbot-header"
             onMouseDown={handleMouseDown}
-            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            style={{ cursor: isDragging ? "grabbing" : "grab" }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
               <Bot size={20} /> AI Tutor (Draggable)
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={() => stop()} title="Mute Output" style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                onClick={() => stop()}
+                title="Mute Output"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
                 <VolumeX size={18} />
               </button>
               {isReady && (
-                <button onClick={resetEngine} style={{ background: 'transparent', border: '1px solid white', borderRadius: '4px', color: 'white', cursor: 'pointer', fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}>
+                <button
+                  onClick={resetEngine}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid white",
+                    borderRadius: "4px",
+                    color: "white",
+                    cursor: "pointer",
+                    fontSize: "0.7rem",
+                    padding: "0.2rem 0.5rem",
+                  }}
+                >
                   Reset GPU
                 </button>
               )}
-              <button onClick={() => setIsOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}>
+              <button
+                onClick={() => setIsOpen(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
                 <X size={20} />
               </button>
             </div>
@@ -246,20 +302,47 @@ export const OfflineChatbot: React.FC = () => {
 
           {!isReady ? (
             <div className="chatbot-init">
-              <h3>WebGPU Initialization</h3>
+              <h3 style={{ color: "gray" }}>
+                {initFailed
+                  ? "Could not start offline AI"
+                  : "Loading offline AI"}
+              </h3>
               <p className="init-text">{progressText}</p>
-              <button className="btn-primary" onClick={initEngine} style={{ width: '100%' }}>
-                Start Web-LLM (135M)
-              </button>
+              {initFailed ? (
+                <button
+                  className="btn-primary"
+                  onClick={() => void initEngine()}
+                  style={{ width: "100%" }}
+                >
+                  Try again
+                </button>
+              ) : (
+                <p
+                  className="init-text"
+                  style={{ fontSize: "0.85rem", marginTop: "0.5rem" }}
+                >
+                  Model downloads in the background when you open the app so it
+                  works offline later.
+                </p>
+              )}
             </div>
           ) : (
             <>
               <div className="chatbot-messages">
-                {messages.filter(m => m.role !== 'system').map((msg, idx) => (
-                  <div key={idx} className={msg.role === 'user' ? 'message-user' : 'message-bot'}>
-                    {typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)}
-                  </div>
-                ))}
+                {messages
+                  .filter((m) => m.role !== "system")
+                  .map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={
+                        msg.role === "user" ? "message-user" : "message-bot"
+                      }
+                    >
+                      {typeof msg.content === "string"
+                        ? msg.content
+                        : JSON.stringify(msg.content)}
+                    </div>
+                  ))}
                 {isGenerating && (
                   <div className="message-bot">
                     <span className="typing-indicator">...</span>
@@ -269,24 +352,37 @@ export const OfflineChatbot: React.FC = () => {
               </div>
 
               <div className="chatbot-input-area">
-                <button 
-                  onClick={toggleMic} 
+                <button
+                  onClick={toggleMic}
                   className="chatbot-mic"
-                  style={{ background: 'transparent', border: 'none', color: isListening ? 'var(--accent-primary)' : '#64748b', cursor: 'pointer', padding: '0.5rem', animation: isListening ? 'pulse 1.5s infinite' : 'none' }}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: isListening ? "var(--accent-primary)" : "#64748b",
+                    cursor: "pointer",
+                    padding: "0.5rem",
+                    animation: isListening ? "pulse 1.5s infinite" : "none",
+                  }}
                   title="Speak your question"
                 >
                   <Mic size={20} />
                 </button>
-                <input 
-                  type="text" 
-                  className="chatbot-input" 
-                  placeholder={isListening ? "Listening..." : "Ask me anything..."}
+                <input
+                  type="text"
+                  className="chatbot-input"
+                  placeholder={
+                    isListening ? "Listening..." : "Ask me anything..."
+                  }
                   value={inputVal}
-                  onChange={e => setInputVal(e.target.value)}
+                  onChange={(e) => setInputVal(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={isGenerating}
                 />
-                <button className="chatbot-send" onClick={handleSend} disabled={isGenerating || !inputVal.trim()}>
+                <button
+                  className="chatbot-send"
+                  onClick={handleSend}
+                  disabled={isGenerating || !inputVal.trim()}
+                >
                   <Send size={18} />
                 </button>
               </div>
@@ -294,7 +390,10 @@ export const OfflineChatbot: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="chatbot-bubble animate-scale" onClick={() => setIsOpen(true)}>
+        <div
+          className="chatbot-bubble animate-scale"
+          onClick={() => setIsOpen(true)}
+        >
           <MessageCircle size={28} />
         </div>
       )}

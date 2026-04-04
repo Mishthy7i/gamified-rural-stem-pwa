@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  CACHE_SIZE_UNLIMITED,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
@@ -8,10 +13,17 @@ const firebaseConfig = {
   projectId: "stem-rural-pwa",
   storageBucket: "stem-rural-pwa.firebasestorage.app",
   messagingSenderId: "153595788199",
-  appId: "1:153595788199:web:d03939d43f75b33bac1482"
+  appId: "1:153595788199:web:d03939d43f75b33bac1482",
 };
 
 const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+/** IndexedDB-backed cache: offline reads (warm cache) + queued writes that sync when online. */
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+    cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+  }),
+});
+
 export const auth = getAuth(app);

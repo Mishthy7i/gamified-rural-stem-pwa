@@ -39,7 +39,7 @@ function PWABadge() {
         <div className="PWABadge-toast">
           <div className="PWABadge-message">
             { offlineReady
-              ? <span id="toast-message">App ready to work offline</span>
+              ? <span id="toast-message" style={{ color: 'gray' }}>App ready to work offline</span>
               : <span id="toast-message">New content available, click on reload button to update.</span>}
           </div>
           <div className="PWABadge-buttons">
