@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Mic, MicOff, Search, ArrowRight } from 'lucide-react';
+import { Mic, MicOff, ArrowRight } from 'lucide-react';
 import './Onboarding.css';
 
 // Declare Web Speech API types
@@ -22,7 +22,7 @@ const StudentOnboarding: React.FC = () => {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
-  
+
   const [nearbySchools, setNearbySchools] = useState<any[]>([]);
   const [selectedSchool, setSelectedSchool] = useState('');
   const [manualSchool, setManualSchool] = useState('');
@@ -30,7 +30,7 @@ const StudentOnboarding: React.FC = () => {
   const [locating, setLocating] = useState(false);
 
   const [selectedClass, setSelectedClass] = useState('');
-  
+
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
 
@@ -81,7 +81,7 @@ const StudentOnboarding: React.FC = () => {
 
   const findNearbySchools = () => {
     setLocating(true);
-    
+
     const fallbackSchools = ["Asha Public School (Local)", "Govt. Inter College (Local)", "Stem Academy (Local)"];
 
     if (!navigator.geolocation) {
@@ -96,7 +96,7 @@ const StudentOnboarding: React.FC = () => {
         const res = await fetch(query);
         const data = await res.json();
         if (data && data.length > 0) {
-          const schoolsList = data.map((e:any) => e.display_name.split(',')[0]);
+          const schoolsList = data.map((e: any) => e.display_name.split(',')[0]);
           setNearbySchools(schoolsList);
         } else {
           setNearbySchools(fallbackSchools);
@@ -114,23 +114,23 @@ const StudentOnboarding: React.FC = () => {
   return (
     <div className="onboarding-container">
       <div className="onboarding-card card-gamified">
-        <h2>Student Profile Setup</h2>
+        <h2>{t('onboarding.student.title')}</h2>
         <div className="progress-bar">
           <div className="progress-fill" style={{ width: `${(step / 3) * 100}%` }}></div>
         </div>
 
         {step === 1 && (
           <div className="form-step animate-slide-up">
-            <h3>Tell us about yourself!</h3>
+            <h3>{t('onboarding.student.step1.headline')}</h3>
             <div className="input-with-mic">
-              <input 
-                type="text" 
-                placeholder="What is your name?" 
-                value={name} 
-                onChange={e => setName(e.target.value)} 
+              <input
+                type="text"
+                placeholder={t('onboarding.student.namePlaceholder')}
+                value={name}
+                onChange={e => setName(e.target.value)}
               />
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className={`mic-btn ${isListening ? 'listening' : ''}`}
                 onClick={toggleMic}
               >
@@ -138,54 +138,63 @@ const StudentOnboarding: React.FC = () => {
               </button>
             </div>
 
-            <input 
-              type="number" 
-              placeholder="Your Age" 
-              value={age} 
-              onChange={e => setAge(e.target.value)} 
+            <input
+              type="number"
+              placeholder={t('onboarding.student.agePlaceholder')}
+              value={age}
+              onChange={e => {
+                const val = e.target.value;
+                if (val === '' || (parseInt(val) >= 0 && parseInt(val) <= 100)) {
+                  setAge(val);
+                }
+              }}
               className="mt-4 w-full"
             />
 
-            <select 
-              value={gender} 
+            <select
+              value={gender}
               onChange={e => setGender(e.target.value)}
               className="mt-4 w-full select-input"
             >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="">{t('onboarding.student.genderPlaceholder')}</option>
+              <option value="male">{t('onboarding.student.gender.male')}</option>
+              <option value="female">{t('onboarding.student.gender.female')}</option>
+              <option value="other">{t('onboarding.student.gender.other')}</option>
             </select>
 
-            <button className="btn-primary mt-6" onClick={handleNext} disabled={!name}>
-              Next Step <ArrowRight size={18} />
+            <button 
+              className="btn-primary mt-6" 
+              onClick={handleNext} 
+              disabled={!name || !age || parseInt(age) < 3 || parseInt(age) > 100}
+            >
+              {t('onboarding.student.next')} <ArrowRight size={18} />
             </button>
           </div>
         )}
 
         {step === 2 && (
           <div className="form-step animate-slide-up">
-            <h3>Find your School</h3>
-            
+            <h3>{t('onboarding.student.step2.headline')}</h3>
+
             {!isManualSchool ? (
               <>
-                <p className="text-secondary text-sm mb-4">Click below to find schools near your location automatically.</p>
-                
-                <button 
-                  className="btn-secondary w-full mb-4" 
+                <p className="text-secondary text-sm mb-4">{t('onboarding.student.step2.sub')}</p>
+
+                <button
+                  className="btn-secondary w-full mb-4"
                   onClick={findNearbySchools}
                   disabled={locating}
                 >
-                  {locating ? 'Locating...' : 'Find Nearby Schools 📍'}
+                  {locating ? t('onboarding.student.locating') : t('onboarding.student.findNearby')}
                 </button>
 
                 {nearbySchools.length > 0 && (
-                  <select 
-                    value={selectedSchool} 
+                  <select
+                    value={selectedSchool}
                     onChange={e => setSelectedSchool(e.target.value)}
                     className="w-full select-input mb-4"
                   >
-                    <option value="">-- Choose from nearby --</option>
+                    <option value="">{t('onboarding.student.selectNearby')}</option>
                     {nearbySchools.map((school, i) => (
                       <option key={i} value={school}>{school}</option>
                     ))}
@@ -193,52 +202,52 @@ const StudentOnboarding: React.FC = () => {
                 )}
 
                 <p className="text-sm mt-4 cursor-pointer text-blue-500 switch-btn" onClick={() => setIsManualSchool(true)}>
-                  Cannot find your school? Add it manually.
+                  {t('onboarding.student.manualPrompt')}
                 </p>
               </>
             ) : (
               <>
-                <p className="text-secondary text-sm mb-4">You can manually type or use voice to enter your school name.</p>
-                
+                <p className="text-secondary text-sm mb-4">{t('onboarding.student.manualHeadline')}</p>
+
                 <div className="input-with-mic mb-4">
-                  <input 
-                    type="text" 
-                    placeholder="Enter School Name" 
-                    value={manualSchool} 
-                    onChange={e => setManualSchool(e.target.value)} 
+                  <input
+                    type="text"
+                    placeholder={t('onboarding.student.manualPlaceholder')}
+                    value={manualSchool}
+                    onChange={e => setManualSchool(e.target.value)}
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`mic-btn ${isListening ? 'listening' : ''}`}
                     onClick={toggleMic}
                   >
                     {isListening ? <Mic size={20} /> : <MicOff size={20} />}
                   </button>
                 </div>
-                
+
                 <p className="text-sm mt-4 cursor-pointer text-blue-500 switch-btn" onClick={() => setIsManualSchool(false)}>
-                  Go back to Location search
+                  {t('onboarding.student.backToLocation')}
                 </p>
               </>
             )}
 
             <div className="flex-between mt-6">
-              <button 
-                className="btn-secondary" 
+              <button
+                className="btn-secondary"
                 onClick={() => {
                   setSelectedSchool('Skipped');
                   setManualSchool('Skipped');
                   handleNext();
                 }}
               >
-                Skip
+                {t('onboarding.student.skip')}
               </button>
-              <button 
-                className="btn-primary" 
+              <button
+                className="btn-primary"
                 onClick={handleNext}
                 disabled={!isManualSchool ? !selectedSchool : !manualSchool}
               >
-                Continue
+                {t('onboarding.student.continue')}
               </button>
             </div>
           </div>
@@ -246,21 +255,21 @@ const StudentOnboarding: React.FC = () => {
 
         {step === 3 && (
           <div className="form-step animate-slide-up">
-            <h3>Select your Class</h3>
-            
-            <select 
-              value={selectedClass} 
+            <h3>{t('onboarding.student.step3.headline')}</h3>
+
+            <select
+              value={selectedClass}
               onChange={e => setSelectedClass(e.target.value)}
               className="w-full select-input"
             >
-              <option value="">Which class are you in?</option>
-              <option value="Class 5">Class 5</option>
-              <option value="Class 6">Class 6 (Fractions focus)</option>
-              <option value="Class 7">Class 7</option>
+              <option value="">{t('onboarding.student.classPlaceholder')}</option>
+              <option value="Class 5">{t('onboarding.student.class5')}</option>
+              <option value="Class 6">{t('onboarding.student.class6')}</option>
+              <option value="Class 7">{t('onboarding.student.class7')}</option>
             </select>
 
             <button className="btn-primary mt-6 w-full" onClick={handleComplete} disabled={!selectedClass}>
-              Finish & Start Learning 🚀
+              {t('onboarding.student.finish')}
             </button>
           </div>
         )}

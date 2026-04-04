@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { db } from '../services/firebase';
 import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 import { ArrowRight, KeyRound } from 'lucide-react';
@@ -9,6 +10,7 @@ import './Onboarding.css';
 const TeacherOnboarding: React.FC = () => {
   const navigate = useNavigate();
   const { user, updateUserData } = useAuth();
+  const { t } = useLanguage();
 
   const [name, setName] = useState('');
   const [school, setSchool] = useState('');
@@ -50,13 +52,13 @@ const TeacherOnboarding: React.FC = () => {
   return (
     <div className="onboarding-container">
       <div className="onboarding-card card-gamified animate-slide-up">
-        <h2>Teacher Setup</h2>
+        <h2>{t('onboarding.teacher.title')}</h2>
         
         {!generatedCode ? (
           <div className="form-step mt-6">
             <input 
               type="text" 
-              placeholder="Full Name (e.g. Priya Sharma)" 
+              placeholder={t('onboarding.teacher.namePlaceholder')} 
               value={name} 
               onChange={e => setName(e.target.value)} 
               className="w-full mb-4"
@@ -64,7 +66,7 @@ const TeacherOnboarding: React.FC = () => {
             
             <input 
               type="text" 
-              placeholder="School Name" 
+              placeholder={t('onboarding.teacher.schoolPlaceholder')} 
               value={school} 
               onChange={e => setSchool(e.target.value)} 
               className="w-full mb-4"
@@ -75,8 +77,8 @@ const TeacherOnboarding: React.FC = () => {
               onChange={e => setSubject(e.target.value)}
               className="w-full select-input mb-4"
             >
-              <option value="Math">Math</option>
-              <option value="Science">Science</option>
+              <option value="Math">{t('onboarding.teacher.math')}</option>
+              <option value="Science">{t('onboarding.teacher.science')}</option>
             </select>
 
             <select 
@@ -84,29 +86,29 @@ const TeacherOnboarding: React.FC = () => {
               onChange={e => setTeachingClass(e.target.value)}
               className="w-full select-input mb-4"
             >
-              <option value="Class 6">Class 6</option>
-              <option value="Class 7">Class 7</option>
+              <option value="Class 6">{t('onboarding.teacher.sub6')}</option>
+              <option value="Class 7">{t('onboarding.teacher.sub7')}</option>
             </select>
 
             <button className="btn-primary w-full" onClick={handleGenerateCode} disabled={!name || !school}>
-              Generate Subject Code <ArrowRight size={18} />
+              {t('onboarding.teacher.generate')} <ArrowRight size={18} />
             </button>
           </div>
         ) : (
           <div className="form-step code-generation-step mt-6 text-center">
             <KeyRound size={48} className="text-emerald mx-auto mb-4" style={{ color: "var(--accent-success)" }} />
-            <h3>Your Classroom Code is Ready!</h3>
+            <h3>{t('onboarding.teacher.success')}</h3>
             
             <div className="code-display my-6">
               <code>{generatedCode}</code>
             </div>
             
             <p className="text-secondary text-sm mb-6">
-              Share this exact code with your students. They will use it to enter your learning track!
+              {t('onboarding.teacher.shareDesc')}
             </p>
 
             <button className="btn-primary w-full" onClick={() => navigate('/dashboard/teacher')}>
-              Go to Dashboard
+              {t('onboarding.teacher.goDashboard')}
             </button>
           </div>
         )}
