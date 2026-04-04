@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../services/firebase';
 import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
-import { Search, Compass, LogOut, ArrowRight, BookOpen } from 'lucide-react';
+import { Search, Compass, UserCircle, ArrowRight, BookOpen } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const StudentDashboard: React.FC = () => {
-  const { userData, user, signOut, updateUserData } = useAuth();
+  const { userData, user, updateUserData } = useAuth();
   const navigate = useNavigate();
   const { t } = useLanguage();
 
@@ -94,7 +94,7 @@ const StudentDashboard: React.FC = () => {
             {hasSchool ? `  |  ${t('dashboard.school')}: ${userData?.school}` : ''}
           </p>
         </div>
-        <button className="btn-secondary" onClick={signOut}><LogOut size={20} /></button>
+        <button className="btn-secondary" onClick={() => navigate('/profile')}><UserCircle size={20} /></button>
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: hasSchool ? '1fr 1fr' : '1fr', gap: '2rem', maxWidth: hasSchool ? '100%' : '600px', margin: hasSchool ? '0' : '0 auto' }}>

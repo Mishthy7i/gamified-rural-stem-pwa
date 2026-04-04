@@ -4,10 +4,10 @@ import { db } from '../services/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { Copy, Users, LogOut, CheckCircle2 } from 'lucide-react';
+import { Copy, Users, UserCircle, CheckCircle2 } from 'lucide-react';
 
 const TeacherDashboard: React.FC = () => {
-  const { userData, user, signOut } = useAuth();
+  const { userData, user } = useAuth();
   const navigate = useNavigate();
   const { t } = useLanguage();
 
@@ -22,7 +22,7 @@ const TeacherDashboard: React.FC = () => {
         // Fetch classes created by this teacher
         const qClasses = query(collection(db, 'classes'), where('teacherId', '==', user.uid));
         const classSnap = await getDocs(qClasses);
-        const classesList = classSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const classesList = classSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
         setMyClasses(classesList);
 
         // Fetch students for each code
@@ -30,7 +30,7 @@ const TeacherDashboard: React.FC = () => {
         for (const cls of classesList) {
           const qStudents = query(collection(db, 'users'), where('joinedClassCode', '==', cls.code));
           const studentSnap = await getDocs(qStudents);
-          studentMap[cls.code] = studentSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          studentMap[cls.code] = studentSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
         }
         setStudentsByCode(studentMap);
       } catch (err) {
@@ -53,7 +53,7 @@ const TeacherDashboard: React.FC = () => {
           <h2>{t('teacher.dashboard')}</h2>
           <p className="text-secondary">{userData?.name} • {userData?.school}</p>
         </div>
-        <button className="btn-secondary" onClick={signOut}><LogOut size={20} /></button>
+        <button className="btn-secondary" onClick={() => navigate('/profile')}><UserCircle size={20} /></button>
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr)', gap: '2rem' }}>

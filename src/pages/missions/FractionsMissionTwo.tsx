@@ -1,24 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ArrowLeft, PlayCircle, CheckCircle2, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeft, PlayCircle, CheckCircle2, RotateCcw, Volume2, VolumeX, UserCircle } from 'lucide-react';
 import Confetti from 'react-confetti';
 import { useVoice } from '../../hooks/useVoice';
+import { useLanguage } from '../../context/LanguageContext';
 
 const FractionsMissionTwo: React.FC = () => {
   const { userData, updateUserData } = useAuth();
   const navigate = useNavigate();
   const { speak, stop } = useVoice();
+  const { language, t } = useLanguage();
   const [phase, setPhase] = useState<'video' | 'task' | 'success'>('video');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  const problemText = "You are cleaning up after lunch. You find exactly 1/2 of a roti on one plate, and exactly 1/2 of another roti on your brother's plate. If you take these two pieces and put them together on a single platter, what do you have mathematically?";
+  const probVoice = t('frac.m2.probVoice');
+  const probUI = t('frac.m2.probUI');
+
+  // Stop avatar voice if user navigates away mid-sentence
+  React.useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, []);
 
   React.useEffect(() => {
     if (phase === 'task') {
-      speak(problemText);
+      speak(probVoice);
       setIsSpeaking(true);
     } else {
       stop();
@@ -31,9 +41,14 @@ const FractionsMissionTwo: React.FC = () => {
       stop();
       setIsSpeaking(false);
     } else {
-      speak(problemText);
+      speak(probVoice);
       setIsSpeaking(true);
     }
+  };
+
+  const handleNavigate = (path: string) => {
+    stop();
+    navigate(path);
   };
 
   const handleCorrect = async () => {
@@ -48,7 +63,7 @@ const FractionsMissionTwo: React.FC = () => {
   };
 
   const handleIncorrect = () => {
-    setErrorMsg('Not quite! If you stick two halves together, what do they make? Try again!');
+    setErrorMsg(t('frac.m2.err'));
     setTimeout(() => setErrorMsg(''), 3500);
   };
 
@@ -57,32 +72,34 @@ const FractionsMissionTwo: React.FC = () => {
       
       {/* Top Bar */}
       <div className="flex-between mb-4">
-        <button className="btn-secondary" onClick={() => navigate('/level/fractions')} style={{ padding: '0.5rem' }}>
+        <button className="btn-secondary" onClick={() => handleNavigate('/level/fractions')} style={{ padding: '0.5rem' }}>
           <ArrowLeft size={20} />
         </button>
         <div style={{ fontWeight: 'bold', color: 'var(--accent-secondary)' }}>
-          Mission 2: Playing with parts
+          {t('frac.m2.title')}
         </div>
-        <div style={{ width: 32 }}></div> {/* Balancer */}
+        <button className="btn-secondary" onClick={() => handleNavigate('/profile')} style={{ padding: '0.4rem', border: 'none', background: 'transparent', color: 'var(--accent-primary)', cursor: 'pointer' }}>
+          <UserCircle size={24} color="currentColor" />
+        </button>
       </div>
 
       {phase === 'video' && (
         <div className="card-gamified animate-slide-up" style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <h2 className="mb-4">Step 1: Adding Fractions 📺</h2>
-          <p className="text-secondary mb-4">Let's see what happens when we glue parts back together!</p>
+          <h2 className="mb-4">{t('frac.m2.step1')}</h2>
+          <p className="text-secondary mb-4">{t('frac.m2.vidSub')}</p>
           
           <div style={{ position: 'relative', background: 'black', paddingBottom: '56.25%', height: 0, borderRadius: 'var(--border-radius-sm)', overflow: 'hidden' }}>
             <video 
-              src="/assets/mission2.mp4" 
+              src={language === 'hi' ? "/assets/mission2_hi.mp4" : "/assets/mission2.mp4"} 
               controls
               style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
             >
-              Please place your mission2.mp4 video file directly into the /public/assets/ folder!
+              Video loads here
             </video>
           </div>
 
           <button className="btn-primary mt-6" style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem' }} onClick={() => setPhase('task')}>
-            <PlayCircle /> Finished! Show me the challenge.
+            <PlayCircle /> {t('frac.m2.btnPlay')}
           </button>
         </div>
       )}
@@ -103,7 +120,7 @@ const FractionsMissionTwo: React.FC = () => {
 
           <div style={{ padding: '2rem', position: 'relative', zIndex: 10, color: 'white' }}>
             <div className="flex-between mb-4">
-              <h2 style={{ fontSize: '1.5rem', color: '#f8fafc' }}>Joining the Pieces 🧩</h2>
+              <h2 style={{ fontSize: '1.5rem', color: '#f8fafc' }}>{t('frac.m2.taskHead')}</h2>
               <button 
                 onClick={toggleVoice} 
                 style={{ background: 'rgba(255,255,255,0.2)', padding: '0.5rem', borderRadius: '50%', color: 'white', display: 'flex', alignItems: 'center' }}
@@ -113,7 +130,7 @@ const FractionsMissionTwo: React.FC = () => {
             </div>
             
             <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#cbd5e1', marginBottom: '2rem' }}>
-              {problemText}
+              {probUI}
             </p>
 
             {errorMsg && (
@@ -124,13 +141,13 @@ const FractionsMissionTwo: React.FC = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
               <button className="btn-secondary" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', padding: '1rem', fontSize: '1.1rem' }} onClick={handleIncorrect}>
-                A) 1/4 (A quarter Roti)
+                {t('frac.m2.optA')}
               </button>
               <button className="btn-secondary" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', padding: '1rem', fontSize: '1.1rem' }} onClick={handleIncorrect}>
-                B) 2 Whole Rotis
+                {t('frac.m2.optB')}
               </button>
               <button className="btn-secondary" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', padding: '1rem', fontSize: '1.1rem' }} onClick={handleCorrect} disabled={loading}>
-                C) 1 (A Whole Roti)
+                {t('frac.m2.optC')}
               </button>
             </div>
           </div>
@@ -143,15 +160,15 @@ const FractionsMissionTwo: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
             <CheckCircle2 size={80} color="var(--accent-primary)" />
           </div>
-          <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Math Wizard! 🧙‍♂️</h2>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>{t('frac.m2.succHead')}</h2>
           <p className="text-secondary" style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>
-            You correctly figured out that <strong>1/2 + 1/2 = 1 Whole</strong>! Adding parts gives you the big picture.
+            {t('frac.m2.succ')}
           </p>
           <div style={{ background: 'var(--bg-primary)', padding: '1rem', borderRadius: '8px', marginBottom: '2rem', display: 'inline-block' }}>
             <strong style={{ color: 'var(--accent-secondary)' }}>+200 Points Earned!</strong>
           </div>
-          <button className="btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }} onClick={() => navigate('/map')}>
-            Complete Module (Return to World Map)
+          <button className="btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }} onClick={() => handleNavigate('/map')}>
+            {t('frac.m2.retMap')}
           </button>
         </div>
       )}

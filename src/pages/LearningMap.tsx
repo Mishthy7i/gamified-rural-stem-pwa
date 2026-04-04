@@ -3,15 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useVoice } from '../hooks/useVoice';
-import { Star, Lock, Play, ArrowLeft } from 'lucide-react';
+import { Star, Lock, Play, ArrowLeft, UserCircle } from 'lucide-react';
 import './LearningMap.css';
 
-const levelData = [
-  { id: 1, title: 'Fractions', description: 'Master Numerators', pointsReq: 0, icon: '🍕' },
-  { id: 2, title: 'Equations', description: 'Solve for X', pointsReq: 50, icon: '⚖️' },
-  { id: 3, title: 'Geometry', description: 'Angles & Shapes', pointsReq: 120, icon: '📐' },
-  { id: 4, title: 'Logic', description: 'Puzzles', pointsReq: 250, icon: '🧩' },
-];
+
 
 const LearningMap: React.FC = () => {
   const { userData } = useAuth();
@@ -20,6 +15,13 @@ const LearningMap: React.FC = () => {
   const { speak, stop } = useVoice();
 
   const currentPoints = userData?.points || 0;
+
+  const getLevelData = () => [
+    { id: 1, title: t('map.lvl.frac.title'), description: t('map.lvl.frac.desc'), pointsReq: 0, icon: '🍕' },
+    { id: 2, title: t('map.lvl.eq.title'), description: t('map.lvl.eq.desc'), pointsReq: 50, icon: '⚖️' },
+    { id: 3, title: 'Geometry', description: 'Angles & Shapes', pointsReq: 120, icon: '📐' },
+    { id: 4, title: 'Logic', description: 'Puzzles', pointsReq: 250, icon: '🧩' },
+  ];
 
   // Speak welcome message using centralized hook
   const speakMessage = () => {
@@ -52,10 +54,16 @@ const LearningMap: React.FC = () => {
     }
     
     if (levelId === 1) {
+      stop();
       navigate('/level/fractions');
     } else {
       alert(`Level ${levelId} logic coming soon!`);
     }
+  };
+
+  const handleNavigate = (path: string) => {
+    stop();
+    navigate(path);
   };
 
   return (
@@ -67,12 +75,17 @@ const LearningMap: React.FC = () => {
       <div className="cloud cloud-3">☁️</div>
 
       <header className="map-header flex-between">
-        <button className="back-btn" onClick={() => navigate('/dashboard/student')}>
+        <button className="back-btn" onClick={() => handleNavigate('/dashboard/student')}>
           <ArrowLeft size={24} color="white" />
         </button>
-        <div className="score-badge">
-          <Star size={20} className="star-icon text-yellow-300" />
-          <span>{currentPoints} Pts</span>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="score-badge">
+            <Star size={20} className="star-icon text-yellow-300" />
+            <span>{currentPoints} Pts</span>
+          </div>
+          <button className="back-btn" onClick={() => handleNavigate('/profile')}>
+            <UserCircle size={24} color="white" />
+          </button>
         </div>
       </header>
 
@@ -90,9 +103,9 @@ const LearningMap: React.FC = () => {
 
       <div className="map-path-container">
         <div className="winding-line"></div>
-        {levelData.map((level, index) => {
+        {getLevelData().map((level, index) => {
           const isLocked = currentPoints < level.pointsReq;
-          const isCurrent = !isLocked && (index === levelData.length - 1 || currentPoints < levelData[index + 1].pointsReq);
+          const isCurrent = !isLocked && (index === getLevelData().length - 1 || currentPoints < getLevelData()[index + 1].pointsReq);
           
           return (
             <div 

@@ -1,11 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, Lock, Star } from 'lucide-react';
+import { ArrowLeft, Play, Lock, Star, UserCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 const FractionsMap: React.FC = () => {
   const navigate = useNavigate();
   const { userData } = useAuth();
+  const { t } = useLanguage();
   
   const currentPoints = userData?.points || 0;
   
@@ -24,9 +26,14 @@ const FractionsMap: React.FC = () => {
         <div style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>
           Level 1: Fractions
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, color: '#f59e0b' }}>
-          <Star size={18} fill="#f59e0b" />
-          {currentPoints} Pts
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontWeight: 600, color: '#f59e0b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Star size={18} fill="#f59e0b" />
+            {currentPoints} Pts
+          </div>
+          <button className="btn-secondary" onClick={() => navigate('/profile')} style={{ padding: '0.4rem', border: 'none', background: 'transparent', color: 'var(--accent-primary)', cursor: 'pointer' }}>
+            <UserCircle size={24} color="currentColor" />
+          </button>
         </div>
       </div>
 
@@ -61,9 +68,9 @@ const FractionsMap: React.FC = () => {
                 <Play size={24} fill="currentColor" />
               </div>
               <div>
-                <h3 style={{ fontSize: '1.3rem', marginBottom: '0.2rem' }}>1. The Basics</h3>
-                <p className="text-secondary mb-2">Learn what fractions are through Mother's Rotis.</p>
-                <span style={{ fontSize: '0.9rem', color: '#f59e0b', fontWeight: 'bold' }}>Reward: 200 PTS</span>
+                <h3 style={{ fontSize: '1.3rem', marginBottom: '0.2rem' }}>{t('frac.m1.title')}</h3>
+                <p className="text-secondary mb-2">{t('frac.m1.desc')}</p>
+                <span style={{ fontSize: '0.9rem', color: '#f59e0b', fontWeight: 'bold' }}>{t('frac.m1.reward')}</span>
               </div>
             </div>
           </div>
@@ -77,21 +84,28 @@ const FractionsMap: React.FC = () => {
               padding: '2rem',
               boxShadow: isMission2Locked ? 'none' : '0 10px 25px rgba(0,0,0,0.05)',
               cursor: isMission2Locked ? 'not-allowed' : 'pointer',
-              border: isMission2Locked ? '2px dashed #cbd5e1' : '2px solid var(--accent-secondary)',
+              border: isMission2Locked ? '2px dashed #cbd5e1' : (currentPoints >= 400 ? '2px solid #10b981' : '2px solid var(--accent-secondary)'),
               opacity: isMission2Locked ? 0.7 : 1,
               transition: 'transform 0.2s',
+              position: 'relative',
+              overflow: 'hidden',
             }}
             className="animate-slide-up hover-scale"
           >
+            {currentPoints >= 400 && (
+              <div style={{ position: 'absolute', top: 0, right: 0, background: '#10b981', color: 'white', padding: '0.2rem 1rem', borderBottomLeftRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                COMPLETED
+              </div>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', textAlign: 'left' }}>
-              <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: isMission2Locked ? '#cbd5e1' : 'var(--accent-secondary)', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: isMission2Locked ? '#cbd5e1' : (currentPoints >= 400 ? '#10b981' : 'var(--accent-secondary)'), color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 {isMission2Locked ? <Lock size={24} /> : <Play size={24} fill="currentColor" />}
               </div>
               <div>
-                <h3 style={{ fontSize: '1.3rem', marginBottom: '0.2rem' }}>2. Playing with Parts</h3>
-                <p className="text-secondary mb-2">Can we add them together?</p>
+                <h3 style={{ fontSize: '1.3rem', marginBottom: '0.2rem' }}>{t('frac.m2.title')}</h3>
+                <p className="text-secondary mb-2">{t('frac.m2.desc')}</p>
                 <span style={{ fontSize: '0.9rem', color: isMission2Locked ? '#94a3b8' : '#f59e0b', fontWeight: 'bold' }}>
-                  {isMission2Locked ? 'Requires 200 PTS to unlock' : 'Reward: 200 PTS'}
+                  {isMission2Locked ? t('frac.m2.locked') : t('frac.m2.reward')}
                 </span>
               </div>
             </div>

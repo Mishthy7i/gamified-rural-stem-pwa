@@ -12,6 +12,7 @@ import LearningMap from './pages/LearningMap';
 import FractionsMap from './pages/missions/FractionsMap';
 import FractionsMissionOne from './pages/missions/FractionsMissionOne';
 import FractionsMissionTwo from './pages/missions/FractionsMissionTwo';
+import UserProfile from './pages/UserProfile';
 import './App.css';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                 {/* Protected App Routes */}
                 <Route path="/dashboard/student" element={<StudentDashboard />} />
                 <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
+                <Route path="/profile" element={<UserProfile />} />
                 
                 {/* Core Game Map Paths */}
                 <Route path="/map" element={<LearningMap />} />
