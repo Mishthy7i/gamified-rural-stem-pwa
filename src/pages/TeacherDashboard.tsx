@@ -4,7 +4,8 @@ import { db } from '../services/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { Copy, Users, UserCircle, CheckCircle2 } from 'lucide-react';
+import { Copy, Users, UserCircle, CheckCircle2, GraduationCap, PlusCircle } from 'lucide-react';
+import './Dashboard.css';
 
 const TeacherDashboard: React.FC = () => {
   const { userData, user } = useAuth();
@@ -19,13 +20,11 @@ const TeacherDashboard: React.FC = () => {
     const fetchTeacherData = async () => {
       if (!user) return;
       try {
-        // Fetch classes created by this teacher
         const qClasses = query(collection(db, 'classes'), where('teacherId', '==', user.uid));
         const classSnap = await getDocs(qClasses);
         const classesList = classSnap.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
         setMyClasses(classesList);
 
-        // Fetch students for each code
         const studentMap: Record<string, any[]> = {};
         for (const cls of classesList) {
           const qStudents = query(collection(db, 'users'), where('joinedClassCode', '==', cls.code));
@@ -47,70 +46,102 @@ const TeacherDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ padding: '2rem', background: 'var(--bg-primary)' }}>
-      <header className="flex-between mb-6">
-        <div>
-          <h2>{t('teacher.dashboard')}</h2>
-          <p className="text-secondary">{userData?.name} • {userData?.school}</p>
-        </div>
-        <button className="btn-secondary" onClick={() => navigate('/profile')}><UserCircle size={20} /></button>
-      </header>
+    <div className="dashboard-container">
+      {/* Background aesthetics carried over */}
+      <div className="bg-gradient-mesh" style={{ position: 'fixed', opacity: 0.6 }}></div>
+      <div className="bg-grid-overlay" style={{ position: 'fixed' }}></div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr)', gap: '2rem' }}>
+      <div className="dashboard-content animate-fade-in-up">
         
-        {myClasses.length === 0 ? (
-          <div className="card-gamified text-center">
-            <h3>{t('teacher.noClasses')}</h3>
-            <p className="text-secondary mb-4">{t('teacher.noClassesDesc')}</p>
-            <button className="btn-primary" onClick={() => navigate('/onboarding/teacher')}>{t('teacher.generateCode')}</button>
-          </div>
-        ) : (
-          myClasses.map((cls, idx) => (
-            <div key={idx} className="card-gamified">
-              <div className="flex-between mb-4 border-b pb-4" style={{ borderBottom: '1px solid rgba(148,163,184,0.2)' }}>
-                <div>
-                  <h3 style={{ color: 'var(--accent-primary)' }}>{cls.subject} ({cls.teachingClass})</h3>
-                  <p className="text-secondary text-sm">{t('teacher.classroomCode')}</p>
-                </div>
-                
-                {/* Code UI */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-primary)', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px dashed var(--accent-secondary)' }}>
-                  <code style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--accent-primary)' }}>{cls.code}</code>
-                  <button onClick={() => copyToClipboard(cls.code)} title="Copy Code" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                    {copySuccess === cls.code ? <CheckCircle2 size={20} color="green" /> : <Copy size={20} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Student Roster */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                  <Users size={18} className="text-secondary" />
-                  <h4 className="text-secondary">{t('teacher.enrolled')}</h4>
-                </div>
-
-                {!studentsByCode[cls.code] || studentsByCode[cls.code].length === 0 ? (
-                  <p className="text-sm text-secondary italic">{t('teacher.noStudents')}</p>
-                ) : (
-                  <div style={{ display: 'grid', gap: '1rem' }}>
-                    {studentsByCode[cls.code].map(student => (
-                      <div key={student.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'var(--bg-primary)', borderRadius: 'var(--border-radius-sm)', borderLeft: '4px solid var(--accent-primary)' }}>
-                        <div>
-                          <strong>{student.name}</strong>
-                          <span className="text-sm text-secondary ml-2">{t('dashboard.class')}: {student.classLevel || t('teacher.unknown')}</span>
-                        </div>
-                        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--accent-secondary)' }}>
-                          {t('teacher.level1')}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+        {/* Modern Glass Header */}
+        <header className="dashboard-header">
+          <div className="header-title-group">
+            <h2>{t('teacher.dashboard')}</h2>
+            <div className="header-subtitle">
+              <GraduationCap size={16} color="#10b981" />
+              <span>{userData?.name}</span>
+              <span style={{ opacity: 0.5 }}>|</span>
+              <span>{userData?.school}</span>
             </div>
-          ))
-        )}
+          </div>
+          <button className="profile-btn" onClick={() => navigate('/profile')}>
+            <UserCircle size={24} />
+          </button>
+        </header>
 
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          
+          {myClasses.length === 0 ? (
+            <div className="premium-glass-card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+              <div style={{ display: 'inline-flex', padding: '1.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '50%', marginBottom: '1.5rem' }}>
+                <Users size={48} color="#34d399" />
+              </div>
+              <h3 style={{ fontSize: '1.8rem', color: 'white', marginBottom: '1rem' }}>{t('teacher.noClasses')}</h3>
+              <p style={{ color: '#94a3b8', fontSize: '1.1rem', marginBottom: '2.5rem', maxWidth: '600px', margin: '0 auto 2.5rem auto' }}>
+                {t('teacher.noClassesDesc')}
+              </p>
+              <button className="btn-glow-primary" onClick={() => navigate('/onboarding/teacher')} style={{ margin: '0 auto' }}>
+                <PlusCircle size={20} /> {t('teacher.generateCode')}
+              </button>
+            </div>
+          ) : (
+            <div className="dash-grid-2">
+              {myClasses.map((cls, idx) => (
+                <div key={idx} className="premium-glass-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
+                    <div>
+                      <h3 style={{ fontSize: '1.4rem', color: '#34d399', marginBottom: '0.25rem' }}>{cls.subject}</h3>
+                      <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Class: {cls.teachingClass}</p>
+                    </div>
+                    
+                    {/* Code UI */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                       <p style={{ color: '#94a3b8', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('teacher.classroomCode')}</p>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(0,0,0,0.3)', padding: '0.5rem 1rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
+                        <code style={{ fontSize: '1.25rem', fontWeight: 700, color: 'white', letterSpacing: '2px' }}>{cls.code}</code>
+                        <button onClick={() => copyToClipboard(cls.code)} title="Copy Code" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}>
+                          {copySuccess === cls.code ? <CheckCircle2 size={20} color="#10b981" /> : <Copy size={20} className="hover:text-white" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Student Roster */}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                      <Users size={20} color="#34d399" />
+                      <h4 style={{ color: 'white', fontSize: '1.1rem' }}>{t('teacher.enrolled')}</h4>
+                      <span style={{ background: 'rgba(52, 211, 153, 0.2)', color: '#34d399', padding: '0.2rem 0.6rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                         {studentsByCode[cls.code]?.length || 0}
+                      </span>
+                    </div>
+
+                    {!studentsByCode[cls.code] || studentsByCode[cls.code].length === 0 ? (
+                      <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                        <p style={{ color: '#64748b', fontStyle: 'italic' }}>{t('teacher.noStudents')}</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '300px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+                        {studentsByCode[cls.code].map(student => (
+                          <div key={student.id} className="student-roster-item">
+                            <div>
+                              <strong style={{ color: 'white', display: 'block', marginBottom: '0.2rem' }}>{student.name}</strong>
+                              <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{t('dashboard.class')}: {student.classLevel || t('teacher.unknown')}</span>
+                            </div>
+                            <div style={{ background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', padding: '0.3rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
+                              {t('teacher.level1')}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   );
